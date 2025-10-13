@@ -1,0 +1,107 @@
+﻿
+@page "/post/{id:int}"
+
+@using kreddit_app.Data;
+@using shared.Model;
+@inject ApiService apiService
+
+<PageTitle>Kreddit</PageTitle>
+
+<style>
+div.contents {
+  background-color: #f2f0eb;
+  width: 600px;
+  border: 2px solid #452d3d;
+  padding: 10px;
+  margin-top: 20px;
+}
+</style>
+
+@if (Post == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="contents">
+        <h4>@Post.Title</h4>
+        <p><strong>Author: @Post.Author<br>
+           @Post.Timestamp.ToLocalTime()<br>
+            Votes: @(Post.Upvotes - Post.Downvotes)
+        </strong></p>
+        @if (!string.IsNullOrWhiteSpace(Post.Url))
+        {
+            <a href="@NormalizedUrl(Post.Url)" target="_blank" rel="noopener noreferrer">
+                @NormalizedUrl(Post.Url)
+            </a>
+        }
+        else if (!string.IsNullOrWhiteSpace(Post.Content))
+        {
+            <p>@Post.Content</p>
+        }
+        else
+        {
+            <em>Ingen indhold (hverken tekst eller URL).</em>
+        }
+    </div>
+
+    <div class="contents">
+    <h4>Comments</h4>
+    <table>
+        <tr>
+            <th>Author</th>
+            <th>Date</th>
+            <th>Comment</th>
+            <th colspan="3">Votes</th>
+        </tr>
+        @foreach (var comment in Post.Comments)
+        {
+            <tr>
+                <td>@comment.Author</td>
+                <td>@comment.Timestamp.ToLocalTime()</td>
+                <td>@comment.Content</td>
+                <td>@(comment.Upvotes - comment.Downvotes)</td>
+                <td><button @onclick="() => Upvote(comment.CommentId)">Upvote</button></td>
+                <td><button @onclick="() => Downvote(comment.CommentId)">Downvote</button></td>
+            </tr>
+        }
+    </table>
+    </div>
+
+    <!-- This demonstrates how to pass in PostId to the component 'CreateComment'. See how 
+         it is used in the file CreateComment.razor -->
+    <CreateComment PostId="@Post.PostId"></CreateComment>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; } 
+    private Post? Post;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Post = await apiService.GetPost(id);
+    }
+    private async Task Upvote(int commentId)
+    {
+        await apiService.UpvoteComment(Post.PostId, commentId);
+    }
+
+    private async Task Downvote(int commentId)
+    {
+        await apiService.DownvoteComment(Post.PostId, commentId);
+    }
+    
+    private static string NormalizedUrl(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return "";
+        var link = raw.Trim();
+        if (!link.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+            !link.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            link = "https://" + link;
+        }
+        return link;
+    }
+
+}

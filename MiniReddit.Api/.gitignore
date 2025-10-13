@@ -1,0 +1,12 @@
+﻿bin/
+obj/
+*.log
+.vs/
+.idea/
+*.user
+*.suo
+*.db
+*.db-shm
+*.db-wal
+*.pubxml
+*.Publish.xml

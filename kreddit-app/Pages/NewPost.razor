@@ -1,0 +1,36 @@
+﻿@page "/new"
+@using kreddit_app.Data
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<h3>New post</h3>
+
+<input placeholder="Title" @bind="title" /><br />
+<input placeholder="Author" @bind="author" /><br />
+<textarea placeholder="Text" @bind="content"></textarea><br />
+<input placeholder="URL" @bind="url" /><br />
+
+<button @onclick="Submit" disabled="@(!IsValid || busy)">Create</button>
+
+@code {
+    string title = "", author = "", content = "", url = "";
+    bool busy = false; string? error;
+
+    bool IsValid =>
+        !string.IsNullOrWhiteSpace(title) &&
+        !string.IsNullOrWhiteSpace(author) &&
+        (string.IsNullOrWhiteSpace(content) ^ string.IsNullOrWhiteSpace(url)); // XOR
+
+    private async Task Submit()
+    {
+        error = null; busy = true;
+        try {
+            var id = await Api.CreatePost(
+                title, author,
+                string.IsNullOrWhiteSpace(content) ? null : content,
+                string.IsNullOrWhiteSpace(url) ? null : url);
+            Nav.NavigateTo($"/post/{id}");
+        } catch (Exception ex) { error = ex.Message; }
+        finally { busy = false; }
+    }
+}
