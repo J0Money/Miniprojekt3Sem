@@ -21,10 +21,6 @@ else
         @foreach (var post in posts)
         {
             <tr>
-                <!-- 
-                    These a href links will match the route in the page 'PostItem.razor'.
-                    The route is defined as "/post/{id}" and the id is the post id.
-                -->
                 <td><a href="/post/@post.PostId">@post.Title</a></td>
                 <td>@post.Timestamp.ToLocalTime()</td>
                 <td>@post.Content</td>

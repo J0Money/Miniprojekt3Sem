@@ -17,7 +17,7 @@
     private async Task CreateNewComment()
     {
         if (string.IsNullOrWhiteSpace(content)) return;
-        await apiService.CreateComment(PostId, "Anon", content);
-        content = ""; // valgfrit: ryd feltet
+        await apiService.CreateComment(PostId, "Forfatter", content);
+        content = ""; 
     }
 }

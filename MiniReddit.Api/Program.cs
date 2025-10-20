@@ -77,7 +77,6 @@ app.MapPost("/api/posts", (DataService s, NewPostData d) =>
 });;
 
 
-//prøver at fikse kommentar
 app.MapPost("/api/posts/{id:int}/comments", (DataService s, int id, NewCommentData data) =>
 {
     if (string.IsNullOrWhiteSpace(data.Author) || string.IsNullOrWhiteSpace(data.Content))
@@ -99,5 +98,4 @@ public record PostDto(
 public record NewPostData(string Title, string Author, string? Content, string? Url);
 public record NewCommentData(string Author, string Content);
 
-//prøver at fiske kommentar
 public record CommentDto(int Id, int PostId, string Content, string Author, DateTime Timestamp, int Upvotes, int Downvotes);

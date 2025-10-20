@@ -30,19 +30,7 @@ public class ApiService
         string url = $"{baseAPI}posts/{id}/";
         return await http.GetFromJsonAsync<Post>(url);
     }
-//prøver at fikse kommentar
-    public async Task<CommentDto?> CreateComment(int postId, string author, string content)
-    {
-        var url = $"{baseAPI}posts/{postId}/comments";
-        var resp = await http.PostAsJsonAsync(url, new { author, content });
-
-        var body = await resp.Content.ReadAsStringAsync();
-        if (!resp.IsSuccessStatusCode)
-            throw new InvalidOperationException($"POST /comments failed {(int)resp.StatusCode}: {body}");
-
-        return JsonSerializer.Deserialize<CommentDto>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-    }
-
+    
     public async Task UpvotePost(int id)
     {
         var res = await http.PutAsync($"{baseAPI}posts/{id}/upvote", null);
@@ -75,7 +63,18 @@ public class ApiService
         return body!["id"];
     }
     
-//prøver at fikse kommentar
+    public async Task<CommentDto?> CreateComment(int postId, string author, string content)
+    {
+        var url = $"{baseAPI}posts/{postId}/comments";
+        var resp = await http.PostAsJsonAsync(url, new { author, content });
+    
+        var body = await resp.Content.ReadAsStringAsync();
+        if (!resp.IsSuccessStatusCode)
+            throw new InvalidOperationException($"POST /comments failed {(int)resp.StatusCode}: {body}");
+    
+        return JsonSerializer.Deserialize<CommentDto>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+
     public record CommentDto(int Id, int PostId, string Content, string Author, DateTime Timestamp, int Upvotes, int Downvotes);
 
 }
