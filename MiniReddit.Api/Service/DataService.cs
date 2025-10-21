@@ -44,9 +44,7 @@ public class DataService
     {
         var post = db.Posts.FirstOrDefault(p => p.PostId == id);
         if (post is null) return false;
-
         post.Downvotes += 1;
-
         db.SaveChanges();
         return true;
     }

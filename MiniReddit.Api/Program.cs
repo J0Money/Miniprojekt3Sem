@@ -21,6 +21,56 @@ builder.Services.AddScoped<DataService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MiniReddit.Api.Data.RedditContext>();
+    
+    db.Database.Migrate();
+
+    if (!db.Posts.Any())
+    {
+        var now = DateTime.UtcNow;
+
+        var p1 = new shared.Model.Post {
+            Title = "Velkommen til MiniReddit",
+            Author = "Joe",
+            Content = "Første post – prøv at stemme og kommentere!",
+            Url = null,
+            Timestamp = now.AddMinutes(-30),
+            Upvotes = 3,
+            Downvotes = 0
+        };
+
+        var p2 = new shared.Model.Post {
+            Title = "Link-post eksempel",
+            Author = "Mads",
+            Content = null,
+            Url = "https://example.org",
+            Timestamp = now.AddMinutes(-20),
+            Upvotes = 1,
+            Downvotes = 0
+        };
+
+        db.Posts.AddRange(p1, p2);
+        db.SaveChanges();
+        
+        db.Comments.AddRange(
+            new shared.Model.Comment {
+                PostId = p1.PostId, Author = "alice",
+                Content = "Ser godt ud!", Timestamp = now.AddMinutes(-25),
+                Upvotes = 2, Downvotes = 0
+            },
+            new shared.Model.Comment {
+                PostId = p1.PostId, Author = "bob",
+                Content = "Husk Minimal API 👍", Timestamp = now.AddMinutes(-22),
+                Upvotes = 1, Downvotes = 0
+            }
+        );
+
+        db.SaveChanges();
+    }
+}
+
 app.UseHttpsRedirection();
 app.UseCors("Wasm");
 
