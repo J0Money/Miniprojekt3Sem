@@ -19,7 +19,7 @@
     bool IsValid =>
         !string.IsNullOrWhiteSpace(title) &&
         !string.IsNullOrWhiteSpace(author) &&
-        (string.IsNullOrWhiteSpace(content) ^ string.IsNullOrWhiteSpace(url)); // XOR
+        (string.IsNullOrWhiteSpace(content) ^ string.IsNullOrWhiteSpace(url)); 
 
     private async Task Submit()
     {
