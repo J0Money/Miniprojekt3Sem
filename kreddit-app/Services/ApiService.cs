@@ -59,21 +59,18 @@ public class ApiService
     {
         var resp = await http.PostAsJsonAsync($"{baseAPI}posts", new { title, author, content, url });
         resp.EnsureSuccessStatusCode();
-        var body = await resp.Content.ReadFromJsonAsync<Dictionary<string,int>>();
-        return body!["id"];
+        var dto = await resp.Content.ReadFromJsonAsync<IdResponse>();
+        return dto!.Id;
     }
-    
+
     public async Task<CommentDto?> CreateComment(int postId, string author, string content)
     {
-        var url = $"{baseAPI}posts/{postId}/comments";
-        var resp = await http.PostAsJsonAsync(url, new { author, content });
-    
-        var body = await resp.Content.ReadAsStringAsync();
-        if (!resp.IsSuccessStatusCode)
-            throw new InvalidOperationException($"POST /comments failed {(int)resp.StatusCode}: {body}");
-    
-        return JsonSerializer.Deserialize<CommentDto>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var resp = await http.PostAsJsonAsync($"{baseAPI}posts/{postId}/comments", new { author, content });
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<CommentDto>();
     }
+
+    public record IdResponse(int Id);
 
     public record CommentDto(int Id, int PostId, string Content, string Author, DateTime Timestamp, int Upvotes, int Downvotes);
 
